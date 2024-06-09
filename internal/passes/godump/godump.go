@@ -7,6 +7,7 @@ import (
 	"github.com/knsh14/astree"
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/passes/buildssa"
+	"golang.org/x/tools/go/ssa"
 )
 
 var (
@@ -55,7 +56,11 @@ func dumpSSA(pass *analysis.Pass) {
 		for _, b := range sf.Blocks {
 			fmt.Println("\tBlock", b.Index)
 			for _, instr := range b.Instrs {
-				fmt.Printf("\t\t%[1]T\t%[1]v\n", instr)
+				if v, ok := instr.(ssa.Value); ok {
+					fmt.Printf("\t\t%[1]T [%[2]s]\t%[1]v\n", v, v.Name())
+				} else {
+					fmt.Printf("\t\t%[1]T\t%[1]v\n", instr)
+				}
 			}
 		}
 		if i < len(srcFuncs)-1 {
